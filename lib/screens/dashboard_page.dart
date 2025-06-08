@@ -32,12 +32,12 @@ class DashboardPage extends StatelessWidget {
                             height: 32,
                           ),
                           const SizedBox(width: 8),
-                          const Text(
+                  const Text(
                             'E-cost',
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                            ),
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
                           ),
                         ],
                       ),

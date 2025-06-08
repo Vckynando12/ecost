@@ -3,6 +3,7 @@ import 'package:ecost/screens/dashboard_page.dart';
 import 'package:ecost/screens/expense_page.dart';
 import 'package:ecost/screens/income_page.dart';
 import 'package:ecost/screens/history_page.dart';
+import 'package:ecost/screens/debts_page.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -19,6 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
     const DashboardPage(),
     const IncomePage(),
     const ExpensePage(),
+    const DebtsPage(),
     const HistoryPage(),
   ];
 
@@ -61,6 +63,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 GButton(
                   icon: Icons.remove_circle,
                   text: 'Expense',
+                ),
+                GButton(
+                  icon: Icons.account_balance_wallet,
+                  text: 'Debts',
                 ),
                 GButton(
                   icon: Icons.history,
