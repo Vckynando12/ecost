@@ -5,7 +5,8 @@ import 'package:ecost/providers/transaction_provider.dart';
 import 'package:ecost/screens/splash_screen.dart';
 import 'package:ecost/utils/app_theme.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
@@ -14,14 +15,24 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => TransactionProvider(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) {
+            final provider = TransactionProvider();
+            // Initialize the provider
+            provider.init();
+            return provider;
+          },
+        ),
+      ],
       child: MaterialApp(
         title: 'E-cost',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
           useMaterial3: true,
+          colorScheme: lightColorScheme,
+          textTheme: GoogleFonts.poppinsTextTheme(),
         ),
         home: const SplashScreen(),
       ),

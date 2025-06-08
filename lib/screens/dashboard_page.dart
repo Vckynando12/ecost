@@ -23,13 +23,23 @@ class DashboardPage extends StatelessWidget {
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'E-cost',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    children: [
+                      Row(
+                        children: [
+                          Image.asset(
+                            'assets/images/logo.png',
+                            width: 32,
+                            height: 32,
+                          ),
+                          const SizedBox(width: 8),
+                          const Text(
+                            'E-cost',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
                       Row(
                         children: [

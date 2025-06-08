@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:ecost/screens/dashboard_page.dart';
+import 'package:ecost/screens/home_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -26,7 +26,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
       end: 1.0,
     ).animate(CurvedAnimation(
       parent: _controller,
-      curve: Interval(0.0, 0.5, curve: Curves.easeIn),
+      curve: const Interval(0.0, 0.5, curve: Curves.easeIn),
     ));
 
     _scaleAnimation = Tween<double>(
@@ -34,14 +34,14 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
       end: 1.0,
     ).animate(CurvedAnimation(
       parent: _controller,
-      curve: Interval(0.0, 0.5, curve: Curves.easeOutBack),
+      curve: const Interval(0.0, 0.5, curve: Curves.easeOutBack),
     ));
 
     _controller.forward().then((_) {
       Future.delayed(const Duration(seconds: 1), () {
         if (mounted) {
           Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (_) => const DashboardPage()),
+            MaterialPageRoute(builder: (_) => const HomeScreen()),
           );
         }
       });
@@ -76,7 +76,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                     ),
                     const SizedBox(height: 20),
                     const Text(
-                      '',
+                      'Manage Your Money Wisely',
                       style: TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
@@ -85,7 +85,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                     ),
                     const SizedBox(height: 8),
                     const Text(
-                      'Manage Your Money Wisely',
+                      'powered by vcky.naand01',
                       style: TextStyle(
                         fontSize: 16,
                         color: Colors.grey,
