@@ -246,9 +246,41 @@ class _DebtsPageState extends State<DebtsPage> {
                     color: debt.isDebtPaid ? Colors.green : Colors.grey,
                   ),
                   onPressed: () async {
-                    if (debt.id != null) {
-                      await Provider.of<TransactionProvider>(context, listen: false)
-                          .markDebtAsPaid(debt.id!);
+                    if (debt.id != null && !debt.isDebtPaid) {
+                      final paymentMethod = await showDialog<String>(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          title: const Text('Pilih Metode Pembayaran'),
+                          content: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              ListTile(
+                                title: const Text('ATM'),
+                                onTap: () => Navigator.of(ctx).pop('ATM'),
+                              ),
+                              ListTile(
+                                title: const Text('Cash'),
+                                onTap: () => Navigator.of(ctx).pop('Cash'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                      if (paymentMethod != null) {
+                        // 1. Tandai debt sebagai lunas
+                        await Provider.of<TransactionProvider>(context, listen: false)
+                            .markDebtAsPaid(debt.id!);
+                        // 2. Tambahkan transaksi expense ke history
+                        await Provider.of<TransactionProvider>(context, listen: false)
+                            .addTransaction(Transaction(
+                          amount: debt.amount,
+                          type: 'expense',
+                          category: 'Debt Payment',
+                          paymentMethod: paymentMethod,
+                          date: DateTime.now(),
+                          note: 'Pelunasan utang: ${debt.category}',
+                        ));
+                      }
                     }
                   },
                   padding: const EdgeInsets.symmetric(horizontal: 4),

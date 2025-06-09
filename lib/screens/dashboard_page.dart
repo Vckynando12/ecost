@@ -150,6 +150,13 @@ class DashboardPage extends StatelessWidget {
                                           style: const TextStyle(fontWeight: FontWeight.w500),
                                           overflow: TextOverflow.ellipsis,
                                         ),
+                                        if (tx.note != null && tx.note!.isNotEmpty)
+                                          Text(
+                                            tx.note!,
+                                            style: const TextStyle(fontSize: 12, color: Colors.grey),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
                                         Text(
                                           DateFormat('dd MMM yyyy').format(tx.date),
                                           style: const TextStyle(fontSize: 12, color: Colors.grey),
