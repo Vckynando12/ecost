@@ -4,6 +4,7 @@ import 'package:quickalert/quickalert.dart';
 import 'package:ecost/models/transaction.dart';
 import 'package:ecost/providers/transaction_provider.dart';
 import 'package:intl/intl.dart';
+import 'package:ecost/screens/home_screen.dart';
 
 class IncomePage extends StatefulWidget {
   const IncomePage({super.key});
@@ -117,15 +118,18 @@ class _IncomeFormState extends State<IncomeForm> {
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
       final provider = Provider.of<TransactionProvider>(context, listen: false);
+      final amountText = _amountController.text.replaceAll(RegExp(r'[^0-9]'), '');
+      if (amountText.isEmpty) return;
+      final amount = double.tryParse(amountText);
+      if (amount == null || amount <= 0) return;
       final transaction = Transaction(
         type: 'income',
         category: _selectedCategory,
-        amount: double.parse(_amountController.text.replaceAll(RegExp(r'[^0-9]'), '')),
+        amount: amount,
         paymentMethod: _selectedPaymentMethod,
         date: _selectedDate,
         note: _noteController.text,
       );
-
       provider.addTransaction(transaction).then((_) {
         if (!mounted) return;
         QuickAlert.show(
@@ -134,7 +138,13 @@ class _IncomeFormState extends State<IncomeForm> {
           text: 'Income added successfully!',
         ).then((_) {
           if (!mounted) return;
-          Navigator.pop(context);
+          if (Navigator.of(context).canPop()) {
+            Navigator.of(context).pop();
+          } else {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (_) => const HomeScreen()),
+            );
+          }
         });
       });
     }
@@ -265,8 +275,10 @@ class _AtmToCashFormState extends State<AtmToCashForm> {
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
       final provider = Provider.of<TransactionProvider>(context, listen: false);
-      final amount = double.parse(_amountController.text.replaceAll(RegExp(r'[^0-9]'), ''));
-      
+      final amountText = _amountController.text.replaceAll(RegExp(r'[^0-9]'), '');
+      if (amountText.isEmpty) return;
+      final amount = double.tryParse(amountText);
+      if (amount == null || amount <= 0) return;
       provider.addAtmToCashTransfer(amount, _noteController.text).then((_) {
         if (!mounted) return;
         QuickAlert.show(
@@ -275,7 +287,13 @@ class _AtmToCashFormState extends State<AtmToCashForm> {
           text: 'Transfer completed successfully!',
         ).then((_) {
           if (!mounted) return;
-          Navigator.pop(context);
+          if (Navigator.of(context).canPop()) {
+            Navigator.of(context).pop();
+          } else {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (_) => const HomeScreen()),
+            );
+          }
         });
       });
     }

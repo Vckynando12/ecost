@@ -205,7 +205,7 @@ class DashboardPage extends StatelessWidget {
             Expanded(
               child: _buildCard(
                 'ATM Balance',
-                currencyFormat.format(provider.totalAtm),
+                currencyFormat.format(provider.totalAtm.isNaN || provider.totalAtm < 0 ? 0 : provider.totalAtm),
                 Icons.credit_card,
                 Colors.blue,
               ),
@@ -214,7 +214,7 @@ class DashboardPage extends StatelessWidget {
             Expanded(
               child: _buildCard(
                 'Cash Balance',
-                currencyFormat.format(provider.totalCash),
+                currencyFormat.format(provider.totalCash.isNaN || provider.totalCash < 0 ? 0 : provider.totalCash),
                 Icons.payments,
                 Colors.green,
               ),
@@ -227,7 +227,7 @@ class DashboardPage extends StatelessWidget {
             Expanded(
               child: _buildCard(
                 'Active Debts',
-                currencyFormat.format(provider.totalActiveDebts),
+                currencyFormat.format(provider.totalActiveDebts.isNaN || provider.totalActiveDebts < 0 ? 0 : provider.totalActiveDebts),
                 Icons.warning_amber,
                 Colors.orange,
               ),
@@ -236,7 +236,7 @@ class DashboardPage extends StatelessWidget {
             Expanded(
               child: _buildCard(
                 'Total Expenses',
-                currencyFormat.format(provider.totalExpense),
+                currencyFormat.format(provider.totalExpense.isNaN || provider.totalExpense < 0 ? 0 : provider.totalExpense),
                 Icons.money_off,
                 Colors.red,
               ),
@@ -334,7 +334,7 @@ class DashboardPage extends StatelessWidget {
                     sections: [
                       PieChartSectionData(
                         color: Colors.blue,
-                        value: provider.totalAtm.abs(),
+                        value: provider.totalAtm.isNaN || provider.totalAtm < 0 ? 0 : provider.totalAtm.abs(),
                         title: '${getPercentage(provider.totalAtm)}\nATM',
                         radius: 100,
                         titleStyle: const TextStyle(
@@ -346,7 +346,7 @@ class DashboardPage extends StatelessWidget {
                       ),
                       PieChartSectionData(
                         color: Colors.green,
-                        value: provider.totalCash.abs(),
+                        value: provider.totalCash.isNaN || provider.totalCash < 0 ? 0 : provider.totalCash.abs(),
                         title: '${getPercentage(provider.totalCash)}\nCash',
                         radius: 100,
                         titleStyle: const TextStyle(
@@ -358,7 +358,7 @@ class DashboardPage extends StatelessWidget {
                       ),
                       PieChartSectionData(
                         color: Colors.orange,
-                        value: provider.totalActiveDebts.abs(),
+                        value: provider.totalActiveDebts.isNaN || provider.totalActiveDebts < 0 ? 0 : provider.totalActiveDebts.abs(),
                         title: '${getPercentage(provider.totalActiveDebts)}\nDebt',
                         radius: 100,
                         titleStyle: const TextStyle(
@@ -370,7 +370,7 @@ class DashboardPage extends StatelessWidget {
                       ),
                       PieChartSectionData(
                         color: Colors.red,
-                        value: provider.totalExpense.abs(),
+                        value: provider.totalExpense.isNaN || provider.totalExpense < 0 ? 0 : provider.totalExpense.abs(),
                         title: '${getPercentage(provider.totalExpense)}\nExpense',
                         radius: 100,
                         titleStyle: const TextStyle(
