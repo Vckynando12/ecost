@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:ecost/models/transaction.dart';
 import 'package:ecost/providers/transaction_provider.dart';
-import 'package:ecost/utils/app_theme.dart';
 import 'package:intl/intl.dart';
 
 class IncomePage extends StatefulWidget {

@@ -7,8 +7,7 @@ final lightColorScheme = ColorScheme.fromSeed(
   secondary: const Color(0xFF625B71),
   onSecondary: Colors.white,
   tertiary: const Color(0xFF7D5260),
-  background: const Color(0xFFF6F5F7),
-  surface: Colors.white,
+  surface: const Color(0xFFF6F5F7),
   error: const Color(0xFFBA1A1A),
 );
 

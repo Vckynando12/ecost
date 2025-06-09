@@ -48,12 +48,12 @@ class _HistoryPageState extends State<HistoryPage> {
       ),
     );
 
-    if (picked != null && mounted) {
+    if (picked != null) {
+      if (!mounted) return;
       setState(() {
         _startDate = picked.start;
         _endDate = picked.end;
       });
-      
       // Update provider's date filter
       final provider = Provider.of<TransactionProvider>(context, listen: false);
       provider.setDateFilter(_startDate, _endDate);
@@ -325,15 +325,13 @@ class _HistoryPageState extends State<HistoryPage> {
                         children: [
                           if (transaction.type == 'debt' && !transaction.isDebtPaid)
                             SlidableAction(
-                              onPressed: (_) async {
+                              onPressed: (actionContext) async {
                                 await provider.markDebtAsPaid(transaction.id!);
-                                if (mounted) {
-                                  QuickAlert.show(
-                                    context: context,
-                                    type: QuickAlertType.success,
-                                    text: 'Debt marked as paid successfully!',
-                                  );
-                                }
+                                QuickAlert.show(
+                                  context: actionContext,
+                                  type: QuickAlertType.success,
+                                  text: 'Debt marked as paid successfully!',
+                                );
                               },
                               backgroundColor: Colors.green,
                               foregroundColor: Colors.white,
@@ -341,15 +339,13 @@ class _HistoryPageState extends State<HistoryPage> {
                               label: 'Mark Paid',
                             ),
                           SlidableAction(
-                            onPressed: (_) async {
+                            onPressed: (actionContext) async {
                               await provider.deleteTransaction(transaction.id!);
-                              if (mounted) {
-                                QuickAlert.show(
-                                  context: context,
-                                  type: QuickAlertType.success,
-                                  text: 'Transaction deleted successfully!',
-                                );
-                              }
+                              QuickAlert.show(
+                                context: actionContext,
+                                type: QuickAlertType.success,
+                                text: 'Transaction deleted successfully!',
+                              );
                             },
                             backgroundColor: Colors.red,
                             foregroundColor: Colors.white,
@@ -395,11 +391,7 @@ class _HistoryPageState extends State<HistoryPage> {
                           ),
                         ),
                         trailing: Text(
-                          NumberFormat.currency(
-                            locale: 'id_ID',
-                            symbol: 'Rp',
-                            decimalDigits: 0,
-                          ).format(transaction.amount),
+                          '${transaction.type == 'income' || transaction.type == 'debt' ? '+' : '-'}Rp${NumberFormat('#,###').format(transaction.amount)}',
                           style: TextStyle(
                             color: _getTransactionColor(transaction.type),
                             fontWeight: FontWeight.w500,

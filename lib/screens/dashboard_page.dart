@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:ecost/providers/transaction_provider.dart';
+import 'package:ecost/providers/debt_provider.dart';
 import 'package:ecost/utils/app_theme.dart';
 import 'package:ecost/utils/pdf_generator.dart';
 import 'package:intl/intl.dart';
@@ -28,16 +29,29 @@ class DashboardPage extends StatelessWidget {
                         children: [
                           Image.asset(
                             'assets/images/logo.png',
-                            width: 32,
-                            height: 32,
+                            width: 40,
+                            height: 40,
                           ),
                           const SizedBox(width: 8),
-                  const Text(
-                            'E-cost',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'E-cost',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              const Text(
+                                'powered by vcky.naand01',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -85,6 +99,80 @@ class DashboardPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 24),
                   _buildBalanceCards(provider),
+                  const SizedBox(height: 24),
+                  Consumer<TransactionProvider>(
+                    builder: (context, provider, _) {
+                      final transactions = provider.transactions;
+                      final lastTransactions = transactions.length > 5
+                          ? transactions.sublist(transactions.length - 5).reversed.toList()
+                          : transactions.reversed.toList();
+                      if (lastTransactions.isEmpty) {
+                        return Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(16),
+                          decoration: AppTheme.cardDecoration,
+                          child: const Text(
+                            'Belum ada transaksi',
+                            style: TextStyle(fontSize: 16, color: Colors.grey),
+                          ),
+                        );
+                      }
+                      return Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(16),
+                        decoration: AppTheme.cardDecoration,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Last Transactions',
+                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 12),
+                            ...lastTransactions.map((tx) => Padding(
+                              padding: const EdgeInsets.only(bottom: 10),
+                              child: Row(
+                                children: [
+                                  CircleAvatar(
+                                    backgroundColor: _getTransactionColor(tx.type).withOpacity(0.2),
+                                    child: Icon(
+                                      _getTransactionIcon(tx.type),
+                                      color: _getTransactionColor(tx.type),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          tx.category,
+                                          style: const TextStyle(fontWeight: FontWeight.w500),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        Text(
+                                          DateFormat('dd MMM yyyy').format(tx.date),
+                                          style: const TextStyle(fontSize: 12, color: Colors.grey),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    '${tx.type == 'income' || tx.type == 'debt' ? '+' : '-'}Rp${NumberFormat('#,###').format(tx.amount)}',
+                                    style: TextStyle(
+                                      color: _getTransactionColor(tx.type),
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
                   const SizedBox(height: 24),
                   _buildStatisticsChart(provider),
                 ],
@@ -364,7 +452,7 @@ class DashboardPage extends StatelessWidget {
                 const SizedBox(width: 4),
                 if (provider.startDate != null && provider.endDate != null)
                   Text(
-                    '${_getFilterText(provider.startDate!, provider.endDate!)}',
+                    _getFilterText(provider.startDate!, provider.endDate!),
                     style: const TextStyle(fontSize: 12),
                   ),
               ],
@@ -372,13 +460,18 @@ class DashboardPage extends StatelessWidget {
           ),
           onSelected: (String value) async {
             if (value == 'custom') {
+              final now = DateTime.now();
+              final initialStart = provider.startDate ?? now;
+              final initialEnd = provider.endDate != null && provider.endDate!.isAfter(now)
+                  ? now
+                  : (provider.endDate ?? now);
               final picked = await showDateRangePicker(
                 context: context,
                 firstDate: DateTime(2020),
-                lastDate: DateTime.now(),
+                lastDate: now,
                 initialDateRange: DateTimeRange(
-                  start: provider.startDate ?? DateTime.now(),
-                  end: provider.endDate ?? DateTime.now(),
+                  start: initialStart.isAfter(now) ? now : initialStart,
+                  end: initialEnd,
                 ),
                 builder: (context, child) {
                   return Theme(
@@ -438,7 +531,7 @@ class DashboardPage extends StatelessWidget {
 
     if (startDate == DateTime(now.year, now.month, 1) &&
         endDate == DateTime(now.year, now.month + 1, 0)) {
-      return 'This Month';
+      return '';
     }
 
     if (startDate == DateTime(now.year, 1, 1) &&
@@ -447,5 +540,31 @@ class DashboardPage extends StatelessWidget {
     }
 
     return '${start.day}/${start.month} - ${end.day}/${end.month}';
+  }
+
+  Color _getTransactionColor(String type) {
+    switch (type) {
+      case 'income':
+        return Colors.green;
+      case 'expense':
+        return Colors.red;
+      case 'debt':
+        return Colors.orange;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  IconData _getTransactionIcon(String type) {
+    switch (type) {
+      case 'income':
+        return Icons.add_circle;
+      case 'expense':
+        return Icons.remove_circle;
+      case 'debt':
+        return Icons.warning;
+      default:
+        return Icons.attach_money;
+    }
   }
 } 

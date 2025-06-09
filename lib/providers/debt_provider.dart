@@ -3,7 +3,7 @@ import 'package:uuid/uuid.dart';
 import '../models/debt.dart';
 
 class DebtProvider with ChangeNotifier {
-  List<Debt> _debts = [];
+  final List<Debt> _debts = [];
   
   List<Debt> get debts => [..._debts];
   List<Debt> get activeDebts => _debts.where((debt) => !debt.isPaid).toList();

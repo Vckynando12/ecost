@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import '../providers/debt_provider.dart';
-import '../models/debt.dart';
+import '../providers/transaction_provider.dart';
+import '../models/transaction.dart';
 
 class DebtsPage extends StatefulWidget {
-  const DebtsPage({Key? key}) : super(key: key);
+  const DebtsPage({super.key});
 
   @override
   State<DebtsPage> createState() => _DebtsPageState();
@@ -13,16 +13,17 @@ class DebtsPage extends StatefulWidget {
 
 class _DebtsPageState extends State<DebtsPage> {
   final _formKey = GlobalKey<FormState>();
-  final _titleController = TextEditingController();
+  final _nameController = TextEditingController();
   final _amountController = TextEditingController();
-  final _descriptionController = TextEditingController();
-  DateTime _selectedDueDate = DateTime.now();
+  final _noteController = TextEditingController();
+  DateTime _selectedDate = DateTime.now();
+  DateTime _selectedDeadline = DateTime.now().add(const Duration(days: 7));
 
   @override
   void dispose() {
-    _titleController.dispose();
+    _nameController.dispose();
     _amountController.dispose();
-    _descriptionController.dispose();
+    _noteController.dispose();
     super.dispose();
   }
 
@@ -33,63 +34,123 @@ class _DebtsPageState extends State<DebtsPage> {
         title: const Text('Add New Debt'),
         content: Form(
           key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                controller: _titleController,
-                decoration: const InputDecoration(labelText: 'Title'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a title';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _amountController,
-                decoration: const InputDecoration(labelText: 'Amount'),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter an amount';
-                  }
-                  if (double.tryParse(value) == null) {
-                    return 'Please enter a valid number';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _descriptionController,
-                decoration: const InputDecoration(labelText: 'Description'),
-                maxLines: 2,
-              ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  const Text('Due Date: '),
-                  TextButton(
-                    onPressed: () async {
-                      final pickedDate = await showDatePicker(
-                        context: context,
-                        initialDate: _selectedDueDate,
-                        firstDate: DateTime.now(),
-                        lastDate: DateTime.now().add(const Duration(days: 365 * 5)),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                TextFormField(
+                  controller: _nameController,
+                  decoration: const InputDecoration(labelText: 'Debt Name'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter the debt name';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _amountController,
+                  decoration: const InputDecoration(labelText: 'Amount (Rp)'),
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter an amount';
+                    }
+                    return null;
+                  },
+                  onChanged: (value) {
+                    if (value.isNotEmpty) {
+                      final number = double.parse(value.replaceAll(RegExp(r'[^0-9]'), ''));
+                      final formatted = NumberFormat.currency(
+                        locale: 'id_ID',
+                        symbol: 'Rp',
+                        decimalDigits: 0,
+                      ).format(number);
+                      _amountController.value = TextEditingValue(
+                        text: formatted,
+                        selection: TextSelection.collapsed(offset: formatted.length),
                       );
-                      if (pickedDate != null) {
-                        setState(() {
-                          _selectedDueDate = pickedDate;
-                        });
-                      }
-                    },
-                    child: Text(
-                      DateFormat('dd/MM/yyyy').format(_selectedDueDate),
+                    }
+                  },
+                ),
+                const SizedBox(height: 16),
+                InkWell(
+                  onTap: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      initialDate: _selectedDate,
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime(2025),
+                    );
+                    if (picked != null) {
+                      setState(() {
+                        _selectedDate = picked;
+                      });
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.grey.shade300),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Date: ${DateFormat('dd MMMM yyyy').format(_selectedDate)}',
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                        const Icon(Icons.calendar_today),
+                      ],
                     ),
                   ),
-                ],
-              ),
-            ],
+                ),
+                const SizedBox(height: 16),
+                InkWell(
+                  onTap: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      initialDate: _selectedDeadline,
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime(2025),
+                    );
+                    if (picked != null) {
+                      setState(() {
+                        _selectedDeadline = picked;
+                      });
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.grey.shade300),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Deadline: ${DateFormat('dd MMMM yyyy').format(_selectedDeadline)}',
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                        const Icon(Icons.calendar_today),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _noteController,
+                  decoration: const InputDecoration(labelText: 'Note (Optional)'),
+                  maxLines: 3,
+                ),
+              ],
+            ),
           ),
         ),
         actions: [
@@ -102,17 +163,26 @@ class _DebtsPageState extends State<DebtsPage> {
           TextButton(
             onPressed: () {
               if (_formKey.currentState!.validate()) {
-                final provider = Provider.of<DebtProvider>(context, listen: false);
-                provider.addDebt(
-                  _titleController.text,
-                  double.parse(_amountController.text),
-                  _descriptionController.text,
-                  _selectedDueDate,
+                final transactionProvider = Provider.of<TransactionProvider>(context, listen: false);
+                transactionProvider.addTransaction(
+                  Transaction(
+                    amount: double.parse(_amountController.text.replaceAll(RegExp(r'[^0-9]'), '')),
+                    type: 'debt',
+                    category: _nameController.text,
+                    paymentMethod: 'Debt',
+                    date: _selectedDate,
+                    deadline: _selectedDeadline,
+                    note: _noteController.text.isEmpty ? null : _noteController.text,
+                  ),
                 );
                 Navigator.of(context).pop();
-                _titleController.clear();
+                _nameController.clear();
                 _amountController.clear();
-                _descriptionController.clear();
+                _noteController.clear();
+                setState(() {
+                  _selectedDate = DateTime.now();
+                  _selectedDeadline = DateTime.now().add(const Duration(days: 7));
+                });
               }
             },
             child: const Text('Add'),
@@ -122,7 +192,7 @@ class _DebtsPageState extends State<DebtsPage> {
     );
   }
 
-  Widget _buildDebtCard(Debt debt) {
+  Widget _buildDebtCard(Transaction debt) {
     final formatter = NumberFormat('#,###');
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
@@ -130,28 +200,30 @@ class _DebtsPageState extends State<DebtsPage> {
         padding: const EdgeInsets.symmetric(vertical: 4),
         child: ListTile(
           title: Text(
-            debt.title,
+            debt.category,
             style: TextStyle(
-              decoration: debt.isPaid ? TextDecoration.lineThrough : null,
+              decoration: debt.isDebtPaid ? TextDecoration.lineThrough : null,
             ),
             overflow: TextOverflow.ellipsis,
           ),
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                debt.description,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              Text(
-                'Due: ${DateFormat('dd/MM/yyyy').format(debt.dueDate)}',
-                style: TextStyle(
-                  color: debt.dueDate.isBefore(DateTime.now()) && !debt.isPaid
-                      ? Colors.red
-                      : null,
+              if (debt.note != null && debt.note!.isNotEmpty)
+                Text(
+                  debt.note!,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
+              if (debt.deadline != null)
+                Text(
+                  'Due: ${DateFormat('dd/MM/yyyy').format(debt.deadline!)}',
+                  style: TextStyle(
+                    color: (debt.deadline!.isBefore(DateTime.now()) && !debt.isDebtPaid)
+                        ? Colors.red
+                        : null,
+                  ),
+                ),
             ],
           ),
           trailing: Container(
@@ -170,21 +242,25 @@ class _DebtsPageState extends State<DebtsPage> {
                 ),
                 IconButton(
                   icon: Icon(
-                    debt.isPaid ? Icons.check_circle : Icons.check_circle_outline,
-                    color: debt.isPaid ? Colors.green : Colors.grey,
+                    debt.isDebtPaid ? Icons.check_circle : Icons.check_circle_outline,
+                    color: debt.isDebtPaid ? Colors.green : Colors.grey,
                   ),
-                  onPressed: () {
-                    Provider.of<DebtProvider>(context, listen: false)
-                        .toggleDebtStatus(debt.id);
+                  onPressed: () async {
+                    if (debt.id != null) {
+                      await Provider.of<TransactionProvider>(context, listen: false)
+                          .markDebtAsPaid(debt.id!);
+                    }
                   },
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   constraints: const BoxConstraints(),
                 ),
                 IconButton(
                   icon: const Icon(Icons.delete_outline, color: Colors.red),
-                  onPressed: () {
-                    Provider.of<DebtProvider>(context, listen: false)
-                        .deleteDebt(debt.id);
+                  onPressed: () async {
+                    if (debt.id != null) {
+                      await Provider.of<TransactionProvider>(context, listen: false)
+                          .deleteTransaction(debt.id!);
+                    }
                   },
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   constraints: const BoxConstraints(),
@@ -209,10 +285,10 @@ class _DebtsPageState extends State<DebtsPage> {
           ),
         ],
       ),
-      body: Consumer<DebtProvider>(
-        builder: (ctx, debtProvider, child) {
-          final activeDebts = debtProvider.activeDebts;
-          final paidDebts = debtProvider.paidDebts;
+      body: Consumer<TransactionProvider>(
+        builder: (ctx, provider, child) {
+          final activeDebts = provider.activeDebts;
+          final paidDebts = provider.debts.where((d) => d.isDebtPaid).toList();
 
           return Column(
             children: [
@@ -227,7 +303,7 @@ class _DebtsPageState extends State<DebtsPage> {
                       style: TextStyle(fontSize: 16),
                     ),
                     Text(
-                      'Rp ${NumberFormat('#,###').format(debtProvider.totalDebt)}',
+                      'Rp ${NumberFormat('#,###').format(provider.totalActiveDebts)}',
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,

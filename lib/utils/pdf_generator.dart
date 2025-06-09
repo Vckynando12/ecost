@@ -131,16 +131,16 @@ class PdfGenerator {
   static pw.Widget _buildTransactionTable(List<Transaction> transactions, NumberFormat currencyFormat) {
     return pw.Table(
       border: pw.TableBorder.all(color: PdfColors.grey),
-      columnWidths: {
-        0: const pw.FlexColumnWidth(2),
-        1: const pw.FlexColumnWidth(2),
-        2: const pw.FlexColumnWidth(1.5),
-        3: const pw.FlexColumnWidth(2),
+      columnWidths: const {
+        0: pw.FlexColumnWidth(2),
+        1: pw.FlexColumnWidth(2),
+        2: pw.FlexColumnWidth(1.5),
+        3: pw.FlexColumnWidth(2),
       },
       children: [
         // Header
         pw.TableRow(
-          decoration: pw.BoxDecoration(color: PdfColors.grey200),
+          decoration: const pw.BoxDecoration(color: PdfColors.grey200),
           children: [
             _buildTableCell('Date', isHeader: true),
             _buildTableCell('Category', isHeader: true),
@@ -156,7 +156,7 @@ class PdfGenerator {
             _buildTableCell(transaction.type.toUpperCase()),
             _buildTableCell(currencyFormat.format(transaction.amount)),
           ],
-        )).toList(),
+        )),
       ],
     );
   }
